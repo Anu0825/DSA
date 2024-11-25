@@ -16,6 +16,8 @@ void heapify_maxHeap(int arr[],int n,int i){
         heapify_maxHeap(arr,n,largest);
     }
 }
+// in case of 0 based indexing -> left=2*i+1 and right=2*i+2
+// 1 based indexing
 void heapify_minHeap(int arr[],int n,int i){
     int smallest=i;
     int left=2*i ;

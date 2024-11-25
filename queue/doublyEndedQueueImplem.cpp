@@ -1,4 +1,3 @@
-//homework
 #include <iostream>
 using namespace std;
 
@@ -25,7 +24,7 @@ public:
         return size == capacity;
     }
 
-    // Function to check if the deque is empty
+    // Function to check if the deque is emptys
     bool isEmpty() {
         return size == 0;
     }

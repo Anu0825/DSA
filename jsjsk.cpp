@@ -6,8 +6,8 @@ public:
     void display() {
         cout << "Display function of Parent class" << endl;
     }
+    void show();
 };
-
 class Child : public Parent {
 public:
     void display() {
