@@ -71,38 +71,54 @@ vector<int> inorderTraversal(Node* root) {
 
     return result;
 }
-
-/*void postorderIterative(Node* root)
+vector<int> postOrderIterative(struct Node* root)
 {
+    vector<int> postOrderList;
+    // Check for empty tree
     if (root == NULL)
-        return;
-
-    stack<int> st;
-
-    // start from root node (set current node to root node)
-    Node* curr = root;
-
-    
-    while (!st.empty() || curr != NULL) {
-
-        while (curr) {
-            st.push(curr->data);
-            curr = curr->left;
-            if(curr->right){
-                st.push(-(curr->right->data));
+        return postOrderList;
+    stack<Node*> S;
+    S.push(root);
+    Node* prev = NULL;
+    while (!S.empty()) {
+        auto current = S.top();
+        /* go down the tree in search of a leaf an if so
+           process it and pop stack otherwise move down */
+        if (prev == NULL || prev->left == current
+            || prev->right == current) {
+            if (current->left)
+                S.push(current->left);
+            else if (current->right)
+                S.push(current->right);
+            else {
+                S.pop();
+                postOrderList.push_back(current->data);
             }
+            /* go up the tree from left node, if the child
+               is right push it onto stack otherwise process
+               parent and pop stack */
         }
 
-        elem = st.top();
-        st.pop();
-        if(elem > 0){
-        cout<<elem<<" ";
+        else if (current->left == prev) {
+            if (current->right)
+                S.push(current->right);
+            else {
+                S.pop();
+                postOrderList.push_back(current->data);
+            }
+
+            /* go up the tree from right node and after
+            coming back from right node process parent and
+            pop stack */
         }
-        else{
-        curr= -(elem);
+        else if (current->right == prev) {
+            S.pop();
+            postOrderList.push_back(current->data);
         }
+        prev = current;
     }
-}*/
+    return postOrderList;
+}
 // Driver Code
 int main()
 {
