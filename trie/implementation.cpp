@@ -1,106 +1,129 @@
-// time comp. for insertion O(l) -> l=length of word
-// time comp. for searching O(l) -> l= length of word
-#include<iostream>
+#include <iostream>
 using namespace std;
-class trieNode{
-    public:
-        char data;
-        trieNode* children[26];
-        bool isTerminal;
-        // constructor
-        trieNode(char ch){
-            data=ch;
-            for(int i=0;i<26;i++){
-                children[i]=NULL;
+
+// Node structure for Trie
+struct Node {
+    // Array to store links to child nodes,
+    // each index represents a letter
+    Node* links[26];
+    // Flag indicating if the node
+    // marks the end of a word
+    bool flag = false;
+
+    // Check if the node contains
+    // a specific key (letter)
+    bool containsKey(char ch) {
+        return links[ch - 'a'] != NULL;
+    }
+
+    // Insert a new node with a specific
+    // key (letter) into the Trie
+    void put(char ch, Node* node) {
+        links[ch - 'a'] = node;
+    }
+
+    // Get the node with a specific
+    // key (letter) from the Trie
+    Node* get(char ch) {
+        return links[ch - 'a'];
+    }
+
+    // Set the current node
+    // as the end of a word
+    void setEnd() {
+        flag = true;
+    }
+
+    // Check if the current node
+    // marks the end of a word
+    bool isEnd() {
+        return flag;
+    }
+};
+
+// Trie class
+class Trie {
+private:
+    Node* root;
+
+public:
+    // Constructor to initialize the
+    // Trie with an empty root node
+    Trie() {
+        root = new Node();
+    }
+
+    // Inserts a word into the Trie
+    // Time Complexity O(len), where len
+    // is the length of the word
+    void insert(string word) {
+        Node* node = root;
+        for (int i = 0; i < word.length(); i++) {
+            if (!node->containsKey(word[i])) {
+                // Create a new node for
+                // the letter if not present
+                node->put(word[i], new Node());
             }
-            isTerminal=false;
+            // Move to the next node
+            node = node->get(word[i]);
         }
+        // Mark the end of the word
+        node->setEnd();
+    }
+
+    // Returns if the word
+    // is in the trie
+    bool search(string word) {
+        Node* node = root;
+        for (int i = 0; i < word.length(); i++) {
+            if (!node->containsKey(word[i])) {
+                // If a letter is not found,
+                // the word is not in the Trie
+                return false;
+            }
+            // Move to the next node
+            node = node->get(word[i]);
+        }
+        // Check if the last node
+        // marks the end of a word
+        return node->isEnd();
+    }
+
+    // Returns if there is any word in the
+    // trie that starts with the given prefix
+    bool startsWith(string prefix) {
+        Node* node = root;
+        for (int i = 0; i < prefix.length(); i++) {
+            if (!node->containsKey(prefix[i])) {
+                // If a letter is not found, there is
+                // no word with the given prefix
+                return false;
+            }
+            // Move to the next node
+            node = node->get(prefix[i]);
+        }
+        // The prefix is found in the Trie
+        return true;
+    }
 };
-class trie{
-    public:
-       trieNode* root;
-       trie(){
-        root= new trieNode('\0');
-       }
-       void insertUtil(trieNode* root,string word){
-        // base case
-        if(word.length()==0){
-            root->isTerminal= true;
-            return;
-        }
-        // assumption word will be in capital letters
-        int index=word[0]-'A';
-        trieNode* child;
-        //present
-        if(root -> children[index]!=NULL){
-            child=root->children[index];
-        }
-        else{
-            // absent
-            child=new trieNode(word[0]);
-            root->children[index]=child;
-        }
-        //recursive call
-         insertUtil(child,word.substr(1));
-       }
-       void insertWord(string word){
-        insertUtil(root,word);
-       }
 
-       bool searchUtil(trieNode* root,string word){
-        // base case
-        if(word.length()==0){
-            return root-> isTerminal;
-        }
-        int index=word[0]-'A';
-        trieNode* child;
-        //present
-        if(root -> children[index]!=NULL){
-            child=root->children[index];
-        }
-        else{
-            // absent
-           return false;
-        }
-        //recursive call
-        return searchUtil(child,word.substr(1));
-       }
 
-       bool searchWord(string word){
-        return searchUtil(root,word);
-       }
+int main() {
+    Trie trie;
+    cout << "Inserting words: Striver, Striving, String, Strike" << endl;
+    trie.insert("striver");
+    trie.insert("striving");
+    trie.insert("string");
+    trie.insert("strike");
+    
+    cout << "Search if Strawberry exists in trie: " <<
+    (trie.search("strawberry") ? "True" : "False")<< endl;
+    
+    cout << "Search if Strike exists in trie: " <<
+   ( trie.search("strike") ? "True" : "False" )<< endl;
+    
+    cout << "If words is Trie start with Stri: " <<
+    (trie.startsWith("stri") ? "True" : "False" )<< endl;
 
-       bool prefixUtil(trieNode* root,string word){
-        // base case
-        if(word.length()==0){
-            return true;
-        }
-        int index=word[0]-'A';
-        trieNode* child;
-        //present
-        if(root -> children[index]!=NULL){
-            child=root->children[index];
-        }
-        else{
-            // absent
-           return false;
-        }
-        //recursive call
-        return prefixUtil(child,word.substr(1));
-       }
-
-       bool startWith(string prefix){
-        return prefixUtil(root,prefix);
-       }
-};
-int main(){
-    trie *t=new trie();
-    t->insertWord("ARM");
-    t->insertWord("DO");
-    t->insertWord("TIME");
-    cout<<"present or not -> "<<t->searchWord("TIME")<<endl;
-    cout<<"present or not -> "<<t->searchWord("TIM")<<endl;
-    cout<<"present or not -> "<<t->searchWord("ABC")<<endl;
-    cout<<"prefix present or not -> "<<t->startWith("TIM")<<endl;
     return 0;
 }
