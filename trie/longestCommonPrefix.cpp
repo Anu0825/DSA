@@ -1,54 +1,78 @@
 // given a list of strings. we have to find the longest common prefix
 // eg. {"coding","coders","codezen","codingninza"} -> ans= cod
-#include<iostream>
-#include<vector>
+#include <iostream>
+#include <vector>
+#include <string>
 using namespace std;
-class trieNode{
-    public:
-      char data;
-      trieNode* children[26];
-      int childcnt;
-      bool isTerminal;
-      trieNode(char ch){
-        data=ch;
-        for(int i=0;i<26;i++){
-            children[i]=NULL;
-        }
-        childcnt=0;
-        isTerminal=false;
-      }
+struct Node {
+    Node* links[26];
+    bool isEnd = false;
+    int childrenCount = 0;
+    bool containsKey(char ch) {
+        return links[ch - 'a'] != nullptr;
+    }
+    void put(char ch, Node* node) {
+        links[ch - 'a'] = node;
+        childrenCount++;
+    }
+    Node* get(char ch) {
+        return links[ch - 'a'];
+    }
+    void setEnd() {
+        isEnd = true;
+    }
+    bool isEndOfWord() {
+        return isEnd;
+    }
 };
-class trie{
-    public:
-       trieNode* root;
-       trie(char ch){
-        root= new trieNode(ch);
-       }
-       void insertUtil(trieNode* root,string word){
-        // base case
-        if(word.length()==0){
-            root->isTerminal= true;
-            return;
+
+class Trie {
+private:
+    Node* root;
+
+public:
+    Trie() {
+        root = new Node();
+    }
+    void insert(string word) {
+        Node* node = root;
+        for (char ch : word) {
+            if (!node->containsKey(ch)) {
+                node->put(ch, new Node());
+            }
+            node = node->get(ch);
         }
-        int index=word[0]-'a';
-        trieNode* child;
-        //present
-        if(root -> children[index]!=NULL){
-            child=root->children[index];
+        node->setEnd();
+    }
+    string longestCommonPrefix() {
+        string prefix = "";
+        Node* node = root;
+        while (true) {
+            // Stop if there are multiple branches or end of a word is reached
+            if (node->childrenCount != 1 || node->isEndOfWord()) {
+                break;
+            }
+            // Find the single child and add it to the prefix
+            for (int i = 0; i < 26; i++) {
+                if (node->links[i]) {
+                    prefix += ('a' + i);
+                    node = node->links[i];
+                    break;
+                }
+            }
         }
-        else{
-            // absent
-            child=new trieNode(word[0]);
-            root -> childcnt++;
-            root->children[index]=child;
-        }
-        //recursive call
-         insertUtil(child,word.substr(1));
-       }
-       void insertWord(string word){
-        insertUtil(root,word);
-       }
+        return prefix;
+    }
 };
+string findLongestCommonPrefix(vector<string>& strs) {
+    if (strs.empty()) return ""; 
+    Trie trie;
+    // Insert all strings into the Trie
+    for (string& str : strs) {
+        trie.insert(str);
+    }
+    return trie.longestCommonPrefix();
+}
 
 // without using trie
 string longestCommonPrefix(vector<string> &arr,int size){
@@ -57,7 +81,6 @@ string longestCommonPrefix(vector<string> &arr,int size){
     for(int i=0;i<arr[0].length();i++){
         char ch=arr[0][i];
         bool match=true;
-
         //for comparing ch with rest of the strings
         for(int j=1;j<size;j++){
             // not match
@@ -75,15 +98,12 @@ string longestCommonPrefix(vector<string> &arr,int size){
     }
     return ans;
 }
-int main(){
-    int size;
-    cout<<"enter size:";
-    cin>>size;
-    vector<string> arr;
-    for(int i=0;i<size;i++){
-        string str;
-        cin>>str;
-        arr.push_back(str);
-    }
-    cout<<"longest common prefix -> "<<longestCommonPrefix(arr,size)<<endl;
+
+int main() {
+    vector<string> strs = {"flower", "flow", "flight"};
+    string lcp = findLongestCommonPrefix(strs);
+    cout << "Longest Common Prefix: " << lcp << endl;
+
+    return 0;
 }
+
